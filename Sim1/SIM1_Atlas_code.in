@@ -1,0 +1,72 @@
+### ECE 416/516  Simulation Assignment 1, v1
+### Modified by Kyle Felix on Oct 31, 2019
+### Modified Oct 7,2019 by Kamesh Mullapudi
+
+go atlas
+
+## Define simulation mesh, units in microns
+##
+mesh  space.mult=1.0
+x.mesh loc=0.00 spac=100
+x.mesh loc=10000.00 spac=100
+y.mesh loc=-100.00 spac=100
+y.mesh loc=7600.00 spac=100
+
+## Define device structure and composition
+##
+region    number=1 x.min=0 x.max=10000 y.min=0 y.max=7500 material=InAs
+electrode  name=anode   number=1 x.min=0 x.max=10000 y.min=-100 y.max=0
+electrode   name=cathode number=2 x.min=0 x.max=10000 y.min=7500 y.max=7600
+contact     name=anode   neutral 
+contact     name=cathode neutral
+
+## Set the doping levels.
+## Comment/uncomment statements to dope your device accordingly
+
+## Case 1
+#doping  region=1 n.type uniform conc=1e16
+## Case 2
+#doping  region=1 p.type uniform conc=1e16
+## Case 3
+doping  region=1 p.type uniform conc=1e16
+doping  region=1 n.type uniform conc=1.05e16
+
+
+## Define models and numerical solution method
+models temp=300 conmob bgn fldmob consrh auger
+
+## Define solving method
+method newton
+
+## Determine equilibrium solution
+solve init
+
+
+## Save you I-V sweep to a log file to later plot using tonyplot. ##Uncomment only one at a time
+## Case 1
+#log   outfile=t300k_2019_InAs_Nd_1e16.log
+## Case 2
+#log   outfile=t300k_2019_InAs_Na_1e16.log
+## Case 3
+log   outfile=t300k_2019_InAs_Na_Nd_1e16_1_05e16.log
+
+
+## Define and run an I-V sweep
+solve      vanode=0  vstep=.01  vfinal=1  name=anode
+
+
+## Plot simulated IV data in log file using tonyplot
+
+tonyplot t300k_2019_InAs_Na_1e16_1_05e16.log -set IV.set
+
+
+
+#Outputs hole and electron mobility to str file
+output h.mob e.mob
+
+## Uncomment this to verify device structure
+## and be able to view it in Tonyplot
+save outf=Structure_2019_t300k_Na_Nd_InAs.str
+tonyplot Structure_2019_t300k_Na_Nd_InAs.str
+
+quit
